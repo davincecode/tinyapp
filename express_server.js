@@ -53,6 +53,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect(`/urls/`);
 });
 
+app.post("/urls/:id", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+  res.redirect(longURL);
+});
+
 app.listen(PORT, () => {
   console.log(`TinyURL app listening on port ${PORT}!`);
 });
