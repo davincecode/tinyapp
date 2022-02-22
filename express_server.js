@@ -1,4 +1,5 @@
 const express = require("express");
+const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const app = express();
 const PORT = 8080;
@@ -11,6 +12,8 @@ const urlDatabase = {
 const generateRandomString = () =>
   (Math.random() + 1).toString(36).substring(1);
 
+app.use(morgan("combined"));
+
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,7 +24,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    urls: urlDatabase,
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -54,14 +59,16 @@ app.post("/urls", (req, res) => {
 /* delete added shortURL */
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
-  res.redirect(`/urls/`);
+  res.redirect(`/urls`);
 });
 
 /* edit added shortURL */
-app.post("/urls/:id", (req, res) => {
-  const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
-  res.redirect(longURL);
+app.post("/urls/:short_id", (req, res) => {
+  const shortID = req.params.short_id;
+  console.log("data sent from user", req.body);
+  const newLink = req.body.longURL;
+  urls[shortID].longURL = newLink;
+  res.redirect(`/urls/`);
 });
 
 /* login */
