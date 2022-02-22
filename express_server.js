@@ -9,7 +9,7 @@ const urlDatabase = {
 };
 
 const generateRandomString = () =>
-  (Math.random() + 1).toString(36).substring(7);
+  (Math.random() + 1).toString(36).substring(2);
 
 app.set("view engine", "ejs");
 
