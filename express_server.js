@@ -12,8 +12,10 @@ const urlDatabase = {
 const generateRandomString = () =>
   (Math.random() + 1).toString(36).substring(1);
 
+// create "middleware"
 app.use(morgan("combined"));
 
+// set the view engine to ejs
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -39,17 +41,19 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: req.params[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL],
   };
   res.render("urls_show", templateVars);
 });
 
+// redirecting for long url
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 });
 
+// redirecting short url to longURL
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
@@ -63,12 +67,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 /* edit added shortURL */
-app.post("/urls/:short_id", (req, res) => {
-  const shortID = req.params.short_id;
-  console.log("data sent from user", req.body);
-  const newLink = req.body.longURL;
-  urls[shortID].longURL = newLink;
-  res.redirect(`/urls/`);
+app.post("/urls/:shortURL/edit", (req, res) => {
+  const shortURL = req.params.shortURL;
+  res.redirect(`/urls/${shortURL}`);
+});
+
+/* update URL */
+app.post("/urls/:shortURL/update", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.newURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 /* login */
