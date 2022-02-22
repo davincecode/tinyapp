@@ -32,7 +32,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-/* create a shortURL */
+/* create new shortURL */
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -46,14 +46,12 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// redirecting for long url
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 });
 
-// redirecting short url to longURL
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
