@@ -1,7 +1,8 @@
-const express = require("express");
-const morgan = require("morgan");
-const bodyParser = require("body-parser");
 const app = express();
+const morgan = require("morgan");
+const express = require("express");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const PORT = 8080;
 
 const urlDatabase = {
@@ -9,16 +10,15 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
-const generateRandomString = () =>
-  (Math.random() + 1).toString(36).substring(1);
+const generateRandomStr = () => (Math.random() + 1).toString(36).substring(1);
 
-// create "middleware"
-app.use(morgan("combined"));
-
-// set the view engine to ejs
+/* middleware */
 app.set("view engine", "ejs");
-
+app.use(cookieParser());
+app.use(morgan("combined"));
 app.use(bodyParser.urlencoded({ extended: true }));
+
+/* Routes */
 
 /* homepage */
 app.get("/", (req, res) => {
@@ -53,7 +53,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
+  const shortURL = generateRandomStr();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
@@ -77,11 +77,10 @@ app.post("/urls/:shortURL/update", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-/* login */
-app.post("/urls/:id", (req, res) => {
-  const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
-  res.redirect(longURL);
+/* Login Credentials */
+app.get("/setcookie", (req, res) => {
+  res.cookie("username", username);
+  res.redirect(`/urls/${shortURL}`);
 });
 
 app.listen(PORT, () => {
