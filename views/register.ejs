@@ -15,8 +15,8 @@
   <%- include('partials/_header') %>
     <main class="col-sm-3 col-md-6 p-4">
       <h3>Rgister here</h3>
-      <form>
-        <div class="form-group">
+      <form action="/register" method="POST">
+        <div class="form-group py-2">
           <label for="input-email">Email address</label>
           <input type="email" class="form-control" id="input-email" aria-describedby="emailHelp"
             placeholder="Enter email">
