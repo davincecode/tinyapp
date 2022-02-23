@@ -1,9 +1,10 @@
-const app = express();
 const morgan = require("morgan");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const PORT = 8080;
+
+const app = express();
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  console.log(req.cookies);
   const templateVars = {
     urls: urlDatabase,
   };
@@ -74,13 +76,15 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 app.post("/urls/:shortURL/update", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.newURL;
+  urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
 /* Login Credentials */
-app.get("/setcookie", (req, res) => {
+app.post("/login", (req, res) => {
+  const username = req.body.username;
   res.cookie("username", username);
-  res.redirect(`/urls/${shortURL}`);
+  res.redirect(`/urls`);
 });
 
 app.listen(PORT, () => {
