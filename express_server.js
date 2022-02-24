@@ -1,24 +1,24 @@
-const { users } = require("./data/userData");
-const { urlDatabase } = require("./data/urlData");
-const {
-  authenticateUser,
-  fetchUserInfo,
-  createUser,
-} = require("./helpers/userHelper");
-const morgan = require("morgan");
 const express = require("express");
+const app = express();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const PORT = 8080;
 
-const app = express();
+/* database */
+const { users } = require("./data/userData");
+const { urlDatabase } = require("./data/urlData");
 
-const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
+/* funcitons */
+const {
+  authenticateUser,
+  fetchUserInfo,
+  createUser,
+  generateRandomStr,
+} = require("./helpers/userHelper");
 
 /* middleware */
 app.set("view engine", "ejs");
 app.use(cookieParser());
-app.use(morgan("combined"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /* Routes */
