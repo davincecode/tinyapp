@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+
 const PORT = 8080;
 
 /* database */
@@ -18,7 +18,7 @@ const {
 
 /* middleware */
 app.set("view engine", "ejs");
-app.use(cookieParser());
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /* Routes */
