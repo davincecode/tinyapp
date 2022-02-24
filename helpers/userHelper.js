@@ -37,4 +37,8 @@ const createUser = (userDB, userInfo) => {
   return { error: null, data: newUser };
 };
 
-module.exports = { authenticateUser, fetchUserInfo, createUser };
+module.exports = {
+  authenticateUser,
+  fetchUserInfo,
+  createUser,
+};

@@ -109,6 +109,7 @@ app.post("/register", (req, res) => {
     console.log(error);
     res.redirect("/register");
   }
+
   res.cookie("email", data.email);
 
   res.redirect("/urls");
@@ -119,7 +120,7 @@ app.get("/login", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
   };
-  res.render("login", templateVars);
+  res.render("/login", templateVars);
 });
 
 /* login auth */
@@ -139,6 +140,9 @@ app.post("/login", (req, res) => {
 
 /* Logout */
 app.post("/logout", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+  };
   res.clearCookie("email");
   res.redirect(`/urls`);
 });
