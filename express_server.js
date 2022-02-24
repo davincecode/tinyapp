@@ -1,4 +1,4 @@
-const { users, urlDatabase } = require("./data/userData");
+const { userDatabase, urlDatabase } = require("./data/userData");
 const {
   authenticateUser,
   fetchUserInfo,
@@ -24,8 +24,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /* homepage */
 app.get("/", (req, res) => {
-  const userInfo = fetchUserInfo(users, req.cookies.email);
-  const templateVars = { username: userInfo, urls: urlDatabase };
+  const userInfo = fetchUserInfo(userDatabase, req.cookies.email);
+  const templateVars = { email: userInfo.email };
+
   return res.render("urls_index", templateVars);
 });
 
@@ -102,7 +103,7 @@ app.get("/register", (req, res) => {
 
 /* register post */
 app.post("/register", (req, res) => {
-  const { error, data } = createUser(users, req.body);
+  const { error, data } = createUser(userDatabase, req.body);
   console.log(req.body);
   if (error) {
     console.log(error);
@@ -113,22 +114,23 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-/* Login */
+/* login page */
+app.get("/login", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render("login", templateVars);
+});
+
+/* login auth */
 app.post("/login", (req, res) => {
-  // const username = req.body.username;
   const { email, password } = req.body;
 
-  const { error, data } = authenticateUser(users, email, password);
+  const { error, data } = authenticateUser(userDatabase, email, password);
 
-  if (!users[email]) {
-    console.log("bad email");
-    res.redirect("/");
-
-    if (users[email].password === password) {
-      console.log("bad password");
-      res.redirect("/");
-    }
-    return res.redirect("/");
+  if (error) {
+    console.log(error);
+    return res.redirect("/login");
   }
 
   res.cookie("email", email);

@@ -1,14 +1,17 @@
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
+const user1 = {
+  id: "userRandomID",
+  email: "user@example.com",
+  password: "xoxo",
+};
+const user2 = {
+  id: "user2RandomID",
+  email: "user2@example.com",
+  password: "xoxo",
+};
+
+const userDatabase = {
+  "user@example.com": user1,
+  "user2@example.com": user2,
 };
 
 const urlDatabase = {
@@ -16,4 +19,4 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
-module.exports = { users, urlDatabase };
+module.exports = { userDatabase, urlDatabase };

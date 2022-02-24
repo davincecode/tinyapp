@@ -17,6 +17,7 @@ const fetchUserInfo = (userDB, email) => {
   } else {
     userInfo = {};
   }
+  return userInfo;
 };
 
 const createUser = (userDB, userInfo) => {
