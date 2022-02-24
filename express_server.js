@@ -140,9 +140,9 @@ app.post("/login", (req, res) => {
 
 /* Logout */
 app.post("/logout", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"],
-  };
+  // const templateVars = {
+  //   username: req.cookies["username"],
+  // };
   res.clearCookie("email");
   res.redirect(`/urls`);
 });
