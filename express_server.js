@@ -1,3 +1,9 @@
+const { users, urlDatabase } = require("./data/userData");
+const {
+  authenticateUser,
+  fetchUserInfo,
+  createUser,
+} = require("./helpers/userHelper");
 const morgan = require("morgan");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -5,11 +11,6 @@ const cookieParser = require("cookie-parser");
 const PORT = 8080;
 
 const app = express();
-
-const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-};
 
 const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
 
@@ -23,7 +24,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /* homepage */
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  const userInfo = fetchUserInfo(users, req.cookies.email);
+  const templateVars = { username: userInfo, urls: urlDatabase };
+  return res.render("urls_index", templateVars);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -56,6 +59,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+/* redirect shortURL to longURL */
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
@@ -88,7 +92,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-/* Register */
+/* register get */
 app.get("/register", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
@@ -96,16 +100,44 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
+/* register post */
+app.post("/register", (req, res) => {
+  const { error, data } = createUser(users, req.body);
+  console.log(req.body);
+  if (error) {
+    console.log(error);
+    res.redirect("/register");
+  }
+  res.cookie("email", data.email);
+
+  res.redirect("/urls");
+});
+
 /* Login */
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
+  // const username = req.body.username;
+  const { email, password } = req.body;
+
+  const { error, data } = authenticateUser(users, email, password);
+
+  if (!users[email]) {
+    console.log("bad email");
+    res.redirect("/");
+
+    if (users[email].password === password) {
+      console.log("bad password");
+      res.redirect("/");
+    }
+    return res.redirect("/");
+  }
+
+  res.cookie("email", email);
   res.redirect(`/urls`);
 });
 
 /* Logout */
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("email");
   res.redirect(`/urls`);
 });
 
