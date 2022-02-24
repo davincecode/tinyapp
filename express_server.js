@@ -1,4 +1,5 @@
-const { users, urlDatabase } = require("./data/userData");
+const { users } = require("./data/userData");
+const { urlDatabase } = require("./data/urlData");
 const {
   authenticateUser,
   fetchUserInfo,
@@ -25,7 +26,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 /* homepage */
 app.get("/", (req, res) => {
   const userInfo = fetchUserInfo(users, req.cookies.email);
-  const templateVars = { username: userInfo, urls: urlDatabase };
+  const templateVars = { email: userInfo.email };
+
   return res.render("urls_index", templateVars);
 });
 
@@ -34,9 +36,10 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  console.log("req cookies", req.cookies);
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"],
+    username: req.cookies["email"],
   };
   res.render("urls_index", templateVars);
 });
@@ -69,7 +72,9 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomStr();
   urlDatabase[shortURL] = req.body.longURL;
+  console.log(urlDatabase[shortURL]);
   res.redirect(`/urls/${shortURL}`);
+  console.log("shortUrl", shortURL);
 });
 
 /* delete added shortURL */
@@ -103,32 +108,34 @@ app.get("/register", (req, res) => {
 /* register post */
 app.post("/register", (req, res) => {
   const { error, data } = createUser(users, req.body);
-  console.log(req.body);
+
   if (error) {
     console.log(error);
     res.redirect("/register");
   }
+
   res.cookie("email", data.email);
 
   res.redirect("/urls");
 });
 
-/* Login */
+/* login page */
+app.get("/login", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render("login", templateVars);
+});
+
+/* login auth */
 app.post("/login", (req, res) => {
-  // const username = req.body.username;
   const { email, password } = req.body;
 
   const { error, data } = authenticateUser(users, email, password);
 
-  if (!users[email]) {
-    console.log("bad email");
-    res.redirect("/");
-
-    if (users[email].password === password) {
-      console.log("bad password");
-      res.redirect("/");
-    }
-    return res.redirect("/");
+  if (error) {
+    console.log(error);
+    return res.redirect("/login");
   }
 
   res.cookie("email", email);
