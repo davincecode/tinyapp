@@ -1,8 +1,8 @@
+const { users, urlDatabase } = require("./data/userData");
 const {
   authenticateUser,
   fetchUserInfo,
   createUser,
-  generateRandomStr,
 } = require("./helpers/userHelper");
 const morgan = require("morgan");
 const express = require("express");
@@ -12,9 +12,7 @@ const PORT = 8080;
 
 const app = express();
 
-/* Database files */
-const { urlDatabase } = require("./data/urlData");
-const { users } = require("./data/userData");
+const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
 
 /* middleware */
 app.set("view engine", "ejs");
@@ -37,9 +35,10 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  console.log("req cookies", req.cookies);
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"],
+    username: req.cookies["email"],
   };
   res.render("urls_index", templateVars);
 });
