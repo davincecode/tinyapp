@@ -32,10 +32,11 @@ const users = {};
 
 /* homepage */
 app.get("/", (req, res) => {
-  const userInfo = fetchUserInfo(users, req.cookies.email);
-  const templateVars = { email: userInfo.email };
-
-  return res.render("urls_index", templateVars);
+  if (req.session.userID) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/urls.json", (req, res) => {
