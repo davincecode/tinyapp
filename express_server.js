@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express();
-const bodyParser = require("body-parser");
-
 const PORT = 8080;
+
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: true }));
 
 /* database */
 const { users } = require("./data/userData");
@@ -17,9 +18,15 @@ const {
 } = require("./helpers/userHelper");
 
 /* middleware */
+
+const cookieSession = require("cookie-session");
+app.use(cookieSession({ name: "session", secret: "cocomelon-kids-tv" }));
+
 app.set("view engine", "ejs");
 
-app.use(bodyParser.urlencoded({ extended: true }));
+/* variables */
+const urlDatabase = {};
+const users = {};
 
 /* Routes */
 
