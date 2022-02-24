@@ -1,3 +1,9 @@
+const { users, urlDatabase } = require("./data/userData");
+const {
+  authenticateUser,
+  fetchUserInfo,
+  createUser,
+} = require("./helpers/userHelper");
 const morgan = require("morgan");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -5,24 +11,6 @@ const cookieParser = require("cookie-parser");
 const PORT = 8080;
 
 const app = express();
-
-const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-};
-
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
 
 const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
 
@@ -35,31 +23,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 /* Routes */
 
 /* homepage */
-const fetchUserInfo = (userDB, email) => {
-  let userInfo = undefined;
-
-  if (userDB[email]) {
-    userInfo = userDB[email];
-  } else {
-    userInfo = {};
-  }
-};
-
-const authenticateUser = (userDB, email, password) => {
-  if (!userDB[email]) {
-    return { error: "bad email", data: null };
-  }
-
-  if (userDB[email].password !== password) {
-    return { error: "bad password", data: null };
-  }
-
-  return { error: null, data: userDB[email] };
-};
-
 app.get("/", (req, res) => {
   const userInfo = fetchUserInfo(users, req.cookies.email);
-  const templateVars = { username: username };
+  const templateVars = { username: userInfo, urls: urlDatabase };
   return res.render("urls_index", templateVars);
 });
 
@@ -93,6 +59,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+/* redirect shortURL to longURL */
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
@@ -133,33 +100,17 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
-const createUser = (userDB, userInfo) => {
-  const { email, password } = userInfo;
-
-  if (!email || !password) {
-    return { error: "One of the fields is invalid", data: null };
-  }
-
-  if (users[email]) {
-    return { error: "account already exist", data: null };
-  }
-  const newUser = { email, password };
-  userDB[email] = newUser;
-
-  return { error: null, data: newUser };
-};
-
 /* register post */
 app.post("/register", (req, res) => {
   const { error, data } = createUser(users, req.body);
-
+  console.log(req.body);
   if (error) {
     console.log(error);
-    return res.redirect("/register");
+    res.redirect("/register");
   }
-  res.cookie("email", email);
+  res.cookie("email", data.email);
 
-  return res.redirect("/urls");
+  res.redirect("/urls");
 });
 
 /* Login */
@@ -171,22 +122,22 @@ app.post("/login", (req, res) => {
 
   if (!users[email]) {
     console.log("bad email");
-    return res.redirect("/");
+    res.redirect("/");
 
     if (users[email].password === password) {
       console.log("bad password");
-      return res.redirect("/");
+      res.redirect("/");
     }
     return res.redirect("/");
   }
 
-  res.cookie("username", username);
+  res.cookie("email", email);
   res.redirect(`/urls`);
 });
 
 /* Logout */
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("email");
   res.redirect(`/urls`);
 });
 
