@@ -22,7 +22,7 @@ const fetchUserInfo = (userDB, email) => {
 
 const createUser = (userDB, userInfo) => {
   const { email, password } = userInfo;
-
+  console.log("email and password", email, password);
   if (!email || !password) {
     return { error: "One of the fields is invalid", data: null };
   }

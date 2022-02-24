@@ -13,8 +13,9 @@
 
 <body>
   <%- include('partials/_header') %>
+  <% if(!email){ %>
     <main class="col-sm-3 col-md-6 p-4">
-      <h3>Rgister here</h3>
+      <h3>Register here</h3>
       <form action="/register" method="POST">
         <div class="form-group py-2">
         <label for="email">Email address:</label>
@@ -27,6 +28,7 @@
         <button class="btn btn-outline-dark" type="submit">Create user</button>
       </form>
     </main>
+  <% } %>
     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

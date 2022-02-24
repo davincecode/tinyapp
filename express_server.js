@@ -104,7 +104,7 @@ app.get("/register", (req, res) => {
 /* register post */
 app.post("/register", (req, res) => {
   const { error, data } = createUser(userDatabase, req.body);
-  console.log(req.body);
+
   if (error) {
     console.log(error);
     res.redirect("/register");
