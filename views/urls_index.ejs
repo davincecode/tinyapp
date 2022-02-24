@@ -13,9 +13,9 @@
 
 <body>
   <%- include('partials/_header') %>
+  <% if (username) { %>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
-    <% if (username) { %>
     <table class="table">
       <thead>
         <tr>

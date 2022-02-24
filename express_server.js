@@ -1,8 +1,8 @@
-const { userDatabase, urlDatabase } = require("./data/userData");
 const {
   authenticateUser,
   fetchUserInfo,
   createUser,
+  generateRandomStr,
 } = require("./helpers/userHelper");
 const morgan = require("morgan");
 const express = require("express");
@@ -12,7 +12,9 @@ const PORT = 8080;
 
 const app = express();
 
-const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
+/* Database files */
+const { urlDatabase } = require("./data/urlData");
+const { users } = require("./data/userData");
 
 /* middleware */
 app.set("view engine", "ejs");
@@ -24,7 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /* homepage */
 app.get("/", (req, res) => {
-  const userInfo = fetchUserInfo(userDatabase, req.cookies.email);
+  const userInfo = fetchUserInfo(users, req.cookies.email);
   const templateVars = { email: userInfo.email };
 
   return res.render("urls_index", templateVars);
@@ -103,7 +105,7 @@ app.get("/register", (req, res) => {
 
 /* register post */
 app.post("/register", (req, res) => {
-  const { error, data } = createUser(userDatabase, req.body);
+  const { error, data } = createUser(users, req.body);
 
   if (error) {
     console.log(error);
@@ -127,7 +129,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  const { error, data } = authenticateUser(userDatabase, email, password);
+  const { error, data } = authenticateUser(users, email, password);
 
   if (error) {
     console.log(error);

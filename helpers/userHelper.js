@@ -37,8 +37,11 @@ const createUser = (userDB, userInfo) => {
   return { error: null, data: newUser };
 };
 
+const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
+
 module.exports = {
   authenticateUser,
   fetchUserInfo,
   createUser,
+  generateRandomStr,
 };
