@@ -19,21 +19,16 @@ const fetchUserInfo = (userDB, email) => {
   }
 };
 
-const createUser = (userDB, userInfo) => {
-  const { email, password } = userInfo;
+const createUser = (id, database) => {
+  let userUrls = {};
 
-  if (!email || !password) {
-    return { error: "One of the fields is invalid", data: null };
+  for (const shortURL in database) {
+    if (database[shortURL].userID === id) {
+      userUrls[shortURL] = database[shortURL];
+    }
   }
 
-  if (userDB[email]) {
-    return { error: "account already exist", data: null };
-  }
-
-  const newUser = { email, password };
-  userDB[email] = newUser;
-  console.log(newUser);
-  return { error: null, data: newUser };
+  return userUrls;
 };
 
 const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
