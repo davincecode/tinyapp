@@ -1,4 +1,5 @@
-const { users, urlDatabase } = require("./data/userData");
+const { users } = require("./data/userData");
+const { urlDatabase } = require("./data/urlData");
 const {
   authenticateUser,
   fetchUserInfo,
@@ -71,7 +72,9 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomStr();
   urlDatabase[shortURL] = req.body.longURL;
+  console.log(urlDatabase[shortURL]);
   res.redirect(`/urls/${shortURL}`);
+  console.log("shortUrl", shortURL);
 });
 
 /* delete added shortURL */
@@ -141,9 +144,6 @@ app.post("/login", (req, res) => {
 
 /* Logout */
 app.post("/logout", (req, res) => {
-  // const templateVars = {
-  //   username: req.cookies["username"],
-  // };
   res.clearCookie("email");
   res.redirect(`/urls`);
 });
