@@ -122,7 +122,7 @@ app.get("/login", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
   };
-  res.render("/login", templateVars);
+  res.render("login", templateVars);
 });
 
 /* login auth */
