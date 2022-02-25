@@ -49,7 +49,7 @@ app.get("/urls", (req, res) => {
 
   const user = users[userID];
   if (!user) {
-    res.status(403).send("please LOG-IN or REGISTER to use TinyApp!");
+    res.status(403).redirect("please LOG-IN or REGISTER to use TinyApp!");
     return;
   }
 
