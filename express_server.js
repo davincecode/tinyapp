@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
   if (req.session.userID) {
     res.redirect("/urls");
   } else {
-    res.redirect("/");
+    res.redirect("/login");
   }
 });
 
