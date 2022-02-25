@@ -50,7 +50,6 @@ app.get("/urls", (req, res) => {
   }
 
   let urls = fetchUserUrl(userID, urlDatabase);
-  console.log(urls);
   const templateVars = { urls, user };
   res.render("urls_index", templateVars);
 });
@@ -127,7 +126,6 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
   const genShortURL = generateRandomStr();
   urlDatabase[genShortURL] = { longURL, userID };
-  console.log("URL DATABASE", urlDatabase);
   res.redirect(`/urls/${genShortURL}`);
 });
 
