@@ -10,9 +10,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["Home page"](link1)
-!["Your URLs page"](link2)
-!["The specific TinyURL page"](link3)
+!["Home page"](https://github.com/davincecode/tinyapp/blob/master/public/homepage.png)
+!["Your URLs page"](https://github.com/davincecode/tinyapp/blob/master/public/urls.png)
+!["The specific TinyURL page"](https://github.com/davincecode/tinyapp/blob/master/public/editsUrl.png)
 
 ## Getting Started
 
@@ -22,7 +22,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 ## How to Use
 
 - Run your node server
-- Browse to `http://localhost:3000/`
+- Browse to `http://localhost:8080/`
 - Enjoy all its features!
 
 ## Dependencies
