@@ -13,7 +13,7 @@ const fetchUserInfo = (database, email) => {
 };
 
 /* user urls */
-const createUser = (userID, urlDatabase) => {
+const fetchUserUrl = (userID, urlDatabase) => {
   let userUrls = {};
 
   for (let key in urlDatabase) {
@@ -29,6 +29,6 @@ const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
 
 module.exports = {
   fetchUserInfo,
-  createUser,
+  fetchUserUrl,
   generateRandomStr,
 };

@@ -12,7 +12,7 @@ const { urlDatabase } = require("./data/urlData");
 /* funcitons */
 const {
   fetchUserInfo,
-  createUser,
+  fetchUserUrl,
   generateRandomStr,
 } = require("./helpers/userHelper");
 
@@ -34,10 +34,6 @@ app.get("/", (req, res) => {
   }
 });
 
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-
 /* url main index page for auth user */
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
@@ -49,11 +45,12 @@ app.get("/urls", (req, res) => {
 
   const user = users[userID];
   if (!user) {
-    res.status(403).redirect("please LOG-IN or REGISTER to use TinyApp!");
+    res.status(403).send("please LOG-IN or REGISTER to use TinyApp!");
     return;
   }
 
-  let urls = createUser(urlDatabase, userID);
+  let urls = fetchUserUrl(userID, urlDatabase);
+  console.log(urls);
   const templateVars = { urls, user };
   res.render("urls_index", templateVars);
 });
@@ -130,6 +127,7 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
   const genShortURL = generateRandomStr();
   urlDatabase[genShortURL] = { longURL, userID };
+  console.log("URL DATABASE", urlDatabase);
   res.redirect(`/urls/${genShortURL}`);
 });
 
@@ -153,7 +151,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   const { shortURL } = req.params;
 
   if (userID !== urlDatabase[shortURL].userID) {
-    res.status(404).send("You do not have permission to  edit this link");
+    res.status(404).send("You do not have permission to edit this link");
     return;
   }
   if (!longURL.startsWith("http")) {
@@ -193,6 +191,7 @@ app.post("/register", (req, res) => {
     req.session.user_id = userID;
     users[userID] = { userID, email, password };
     res.redirect(`/urls`);
+    return;
   }
 
   res.send("this email already exists!");
