@@ -1,151 +1,243 @@
-const { users } = require("./data/userData");
-const { urlDatabase } = require("./data/urlData");
-const {
-  authenticateUser,
-  fetchUserInfo,
-  createUser,
-} = require("./helpers/userHelper");
-const morgan = require("morgan");
 const express = require("express");
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+const app = express();
 const PORT = 8080;
 
-const app = express();
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
+/* database */
+const { users } = require("./data/userData");
+const { urlDatabase } = require("./data/urlData");
+
+/* funcitons */
+const {
+  fetchUserInfo,
+  fetchUserUrl,
+  generateRandomStr,
+} = require("./helpers/userHelper");
 
 /* middleware */
+const bcrypt = require("bcrypt");
+const cookieSession = require("cookie-session");
+app.use(cookieSession({ name: "session", secret: "secret-password-session" }));
+
 app.set("view engine", "ejs");
-app.use(cookieParser());
-app.use(morgan("combined"));
-app.use(bodyParser.urlencoded({ extended: true }));
 
 /* Routes */
 
 /* homepage */
 app.get("/", (req, res) => {
-  const userInfo = fetchUserInfo(users, req.cookies.email);
-  const templateVars = { email: userInfo.email };
-
-  return res.render("urls_index", templateVars);
+  if (req.session.userID) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
+/* url main index page for auth user */
 app.get("/urls", (req, res) => {
-  console.log("req cookies", req.cookies);
-  const templateVars = {
-    urls: urlDatabase,
-    username: req.cookies["email"],
-  };
+  const userID = req.session.user_id;
+
+  if (!userID) {
+    res.status(403).send("please LOG-IN or REGISTER to use TinyApp!");
+    return;
+  }
+
+  const user = users[userID];
+  if (!user) {
+    res.status(403).send("please LOG-IN or REGISTER to use TinyApp!");
+    return;
+  }
+
+  let urls = fetchUserUrl(userID, urlDatabase);
+  const templateVars = { urls, user };
   res.render("urls_index", templateVars);
 });
 
-/* create new shortURL */
+/* create new shortURL page */
 app.get("/urls/new", (req, res) => {
+  const userID = req.session.user_id;
+  if (!userID) {
+    res.status(403).send("please LOG-IN or REGISTER to use TinyApp!");
+    return;
+  }
+
+  const user = users[userID];
+  if (!user) {
+    res.redirect(`/login`);
+    return;
+  }
+
   const templateVars = {
-    username: req.cookies["username"],
+    user,
   };
   res.render("urls_new", templateVars);
 });
 
-/* generated shortURL page */
+/* generated shortURL page for auth users */
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"],
-  };
+  const userID = req.session.user_id;
+  if (!userID) {
+    res.status(403).send("please LOG-IN or REGISTER to use TinyApp!");
+    return;
+  }
+
+  const user = users[userID];
+  if (!user) {
+    res.send("please LOG-IN or REGISTER to use TinyApp!");
+    return;
+  }
+
+  const shortURL = req.params.shortURL;
+  const urlRecord = urlDatabase[shortURL];
+  if (!urlRecord) {
+    res.send("this short URL does not exist!");
+    return;
+  }
+
+  if (urlRecord.userID !== userID) {
+    res.send("this URL does not belong to you!");
+    return;
+  }
+
+  const longURL = urlRecord.longURL;
+  const templateVars = { shortURL, longURL, user };
   res.render("urls_show", templateVars);
 });
 
 /* redirect shortURL to longURL */
 app.get("/u/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
-  res.redirect(longURL);
+  const urlRecord = urlDatabase[req.params.shortURL];
+  if (!urlRecord) {
+    res.send("this short URL does not exist");
+    return;
+  }
+
+  res.redirect(urlRecord.longURL);
 });
 
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomStr();
-  urlDatabase[shortURL] = req.body.longURL;
-  console.log(urlDatabase[shortURL]);
-  res.redirect(`/urls/${shortURL}`);
-  console.log("shortUrl", shortURL);
+  let { longURL } = req.body;
+
+  if (!longURL.startsWith("http")) {
+    longURL = `http://${longURL}`;
+  }
+
+  const userID = req.session.user_id;
+  const genShortURL = generateRandomStr();
+  urlDatabase[genShortURL] = { longURL, userID };
+  res.redirect(`/urls/${genShortURL}`);
 });
 
-/* delete added shortURL */
+/* delete added shortURL for auth user */
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const userID = req.session.user_id;
+  const { shortURL } = req.params;
+  if (userID !== urlDatabase[shortURL].userID) {
+    res.sendStatus(404);
+    return;
+  }
+
+  delete urlDatabase[shortURL];
   res.redirect(`/urls`);
 });
 
 /* edit added shortURL */
 app.post("/urls/:shortURL/edit", (req, res) => {
-  const shortURL = req.params.shortURL;
-  res.redirect(`/urls/${shortURL}`);
-});
+  const userID = req.session.user_id;
+  let { longURL } = req.body;
+  const { shortURL } = req.params;
 
-/* update URL */
-app.post("/urls/:shortURL/update", (req, res) => {
-  const shortURL = req.params.shortURL;
-  const longURL = req.body.newURL;
-  urlDatabase[shortURL] = longURL;
-  res.redirect(`/urls/${shortURL}`);
+  if (userID !== urlDatabase[shortURL].userID) {
+    res.status(404).send("You do not have permission to edit this link");
+    return;
+  }
+  if (!longURL.startsWith("http")) {
+    longURL = `http://${longURL}`;
+  }
+
+  urlDatabase[shortURL] = { longURL, userID };
+  res.redirect(`/urls`);
 });
 
 /* register get */
 app.get("/register", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"],
-  };
-  res.render("register", templateVars);
-});
-
-/* register post */
-app.post("/register", (req, res) => {
-  const { error, data } = createUser(users, req.body);
-
-  if (error) {
-    console.log(error);
-    res.redirect("/register");
+  const userID = req.session.user_id;
+  if (!userID) {
+    const templateVars = {
+      user: null,
+    };
+    res.render("register", templateVars);
+    return;
   }
-
-  res.cookie("email", data.email);
 
   res.redirect("/urls");
 });
 
-/* login page */
+/* register post */
+app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = bcrypt.hashSync(req.body.password, 10);
+
+  if (email === "" || password === "") {
+    res.status(400).send("please check your email or password");
+    return;
+  }
+
+  if (!fetchUserInfo(users, email)) {
+    const userID = generateRandomStr();
+    req.session.user_id = userID;
+    users[userID] = { userID, email, password };
+    res.redirect(`/urls`);
+    return;
+  }
+
+  res.send("this email already exists!");
+  return;
+});
+
+// /* login page */
 app.get("/login", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"],
-  };
-  res.render("login", templateVars);
+  const userID = req.session.user_id;
+  if (!userID) {
+    const templateVars = {
+      user: null,
+    };
+    res.render("login", templateVars);
+    return;
+  }
+
+  res.redirect("/urls");
 });
 
 /* login auth */
 app.post("/login", (req, res) => {
-  const { email, password } = req.body;
-
-  const { error, data } = authenticateUser(users, email, password);
-
-  if (error) {
-    console.log(error);
-    return res.redirect("/login");
+  const email = req.body.email;
+  const password = req.body.password;
+  if (email === "" || password === "") {
+    res.status(403).send("wrong credentials");
+    return;
   }
 
-  res.cookie("email", email);
+  const user = fetchUserInfo(users, email);
+  if (!user) {
+    res.status(403).send("invalid credentials");
+    return;
+  }
+
+  if (!bcrypt.compareSync(password, user.password)) {
+    res.status(403).send("invalid credentials");
+    return;
+  }
+
+  req.session.user_id = user.userID;
   res.redirect(`/urls`);
 });
 
 /* Logout */
 app.post("/logout", (req, res) => {
-  res.clearCookie("email");
-  res.redirect(`/urls`);
+  req.session = null;
+  res.redirect(`/login`);
 });
 
 app.listen(PORT, () => {
