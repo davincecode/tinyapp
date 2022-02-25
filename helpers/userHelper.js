@@ -1,4 +1,4 @@
-/* fetch emails from user */
+/* Fetch user by email */
 const getUserByEmail = (database, email) => {
   let user = {};
 
@@ -12,7 +12,7 @@ const getUserByEmail = (database, email) => {
   return null;
 };
 
-/* user urls */
+/* Returns user's urls */
 const fetchUserUrl = (userID, urlDatabase) => {
   let userUrls = {};
 

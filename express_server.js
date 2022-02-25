@@ -7,6 +7,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
+app.listen(PORT, () => {
+  console.log(`TinyURL app listening on port ${PORT}!`);
+});
+
 /* Database */
 const { users } = require("./data/userData");
 const { urlDatabase } = require("./data/urlData");
@@ -23,15 +27,47 @@ const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
 app.use(cookieSession({ name: "session", secret: "secret-password-session" }));
 
-/* Routes */
+/* 
+
+GET ROUTES 
+
+*/
 
 /* Homepage */
 app.get("/", (req, res) => {
   if (req.session.userID) {
     res.redirect("/urls");
   } else {
-    res.redirect("/login");
+    res.redirect("/");
   }
+});
+
+/* Register */
+app.get("/register", (req, res) => {
+  const userID = req.session.user_id;
+  if (!userID) {
+    const templateVars = {
+      user: null,
+    };
+    res.render("register", templateVars);
+    return;
+  }
+
+  res.redirect("/urls");
+});
+
+/* Login page */
+app.get("/login", (req, res) => {
+  const userID = req.session.user_id;
+  if (!userID) {
+    const templateVars = {
+      user: null,
+    };
+    res.render("login", templateVars);
+    return;
+  }
+
+  res.redirect("/urls");
 });
 
 /* Main index page for auth user */
@@ -116,6 +152,12 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlRecord.longURL);
 });
 
+/*
+
+POST ROUTES
+
+*/
+
 app.post("/urls", (req, res) => {
   let { longURL } = req.body;
 
@@ -160,20 +202,6 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls`);
 });
 
-/* Register get */
-app.get("/register", (req, res) => {
-  const userID = req.session.user_id;
-  if (!userID) {
-    const templateVars = {
-      user: null,
-    };
-    res.render("register", templateVars);
-    return;
-  }
-
-  res.redirect("/urls");
-});
-
 /* Register post */
 app.post("/register", (req, res) => {
   const email = req.body.email;
@@ -194,20 +222,6 @@ app.post("/register", (req, res) => {
 
   res.send("this email already exists!");
   return;
-});
-
-/* Login page */
-app.get("/login", (req, res) => {
-  const userID = req.session.user_id;
-  if (!userID) {
-    const templateVars = {
-      user: null,
-    };
-    res.render("login", templateVars);
-    return;
-  }
-
-  res.redirect("/urls");
 });
 
 /* Login auth */
@@ -238,8 +252,4 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect(`/login`);
-});
-
-app.listen(PORT, () => {
-  console.log(`TinyURL app listening on port ${PORT}!`);
 });
