@@ -4,28 +4,27 @@ const PORT = 8080;
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
 
-/* database */
+/* Database */
 const { users } = require("./data/userData");
 const { urlDatabase } = require("./data/urlData");
 
-/* funcitons */
+/* Functions */
 const {
-  fetchUserInfo,
+  getUserByEmail,
   fetchUserUrl,
   generateRandomStr,
 } = require("./helpers/userHelper");
 
-/* middleware */
+/* Middleware */
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
 app.use(cookieSession({ name: "session", secret: "secret-password-session" }));
 
-app.set("view engine", "ejs");
-
 /* Routes */
 
-/* homepage */
+/* Homepage */
 app.get("/", (req, res) => {
   if (req.session.userID) {
     res.redirect("/urls");
@@ -34,7 +33,7 @@ app.get("/", (req, res) => {
   }
 });
 
-/* url main index page for auth user */
+/* Main index page for auth user */
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
 
@@ -54,7 +53,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-/* create new shortURL page */
+/* Create new shortURL page */
 app.get("/urls/new", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -74,7 +73,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-/* generated shortURL page for auth users */
+/* Generate shortURL page for auth users */
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -105,7 +104,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-/* redirect shortURL to longURL */
+/* Redirect shortURL to longURL */
 app.get("/u/:shortURL", (req, res) => {
   const urlRecord = urlDatabase[req.params.shortURL];
   if (!urlRecord) {
@@ -129,7 +128,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${genShortURL}`);
 });
 
-/* delete added shortURL for auth user */
+/* Delete added shortURL for auth user */
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.session.user_id;
   const { shortURL } = req.params;
@@ -142,7 +141,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect(`/urls`);
 });
 
-/* edit added shortURL */
+/* Edit added shortURL */
 app.post("/urls/:shortURL/edit", (req, res) => {
   const userID = req.session.user_id;
   let { longURL } = req.body;
@@ -160,7 +159,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls`);
 });
 
-/* register get */
+/* Register get */
 app.get("/register", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -174,7 +173,7 @@ app.get("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-/* register post */
+/* Register post */
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
@@ -184,7 +183,7 @@ app.post("/register", (req, res) => {
     return;
   }
 
-  if (!fetchUserInfo(users, email)) {
+  if (!getUserByEmail(users, email)) {
     const userID = generateRandomStr();
     req.session.user_id = userID;
     users[userID] = { userID, email, password };
@@ -196,7 +195,7 @@ app.post("/register", (req, res) => {
   return;
 });
 
-// /* login page */
+/* Login page */
 app.get("/login", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -210,7 +209,7 @@ app.get("/login", (req, res) => {
   res.redirect("/urls");
 });
 
-/* login auth */
+/* Login auth */
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -219,7 +218,7 @@ app.post("/login", (req, res) => {
     return;
   }
 
-  const user = fetchUserInfo(users, email);
+  const user = getUserByEmail(users, email);
   if (!user) {
     res.status(403).send("invalid credentials");
     return;

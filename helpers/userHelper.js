@@ -1,5 +1,5 @@
 /* fetch emails from user */
-const fetchUserInfo = (database, email) => {
+const getUserByEmail = (database, email) => {
   let user = {};
 
   for (let key in database) {
@@ -28,7 +28,7 @@ const fetchUserUrl = (userID, urlDatabase) => {
 const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
 
 module.exports = {
-  fetchUserInfo,
+  getUserByEmail,
   fetchUserUrl,
   generateRandomStr,
 };
