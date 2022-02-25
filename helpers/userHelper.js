@@ -1,30 +1,24 @@
-const authenticateUser = (userDB, email, password) => {
-  if (!userDB[email]) {
-    return { error: "bad email", data: null };
+/* fetch emails from user */
+const fetchUserInfo = (database, email) => {
+  let user = {};
+
+  for (let key in database) {
+    if (database[key]["email"] === email) {
+      user = database[key];
+      return user;
+    }
   }
 
-  if (userDB[email].password !== password) {
-    return { error: "bad password", data: null };
-  }
-
-  return { error: null, data: userDB[email] };
+  return null;
 };
 
-const fetchUserInfo = (userDB, email) => {
-  let userInfo = undefined;
-  if (userDB[email]) {
-    userInfo = userDB[email];
-  } else {
-    userInfo = {};
-  }
-};
-
-const createUser = (id, database) => {
+/* user urls */
+const createUser = (userID, urlDatabase) => {
   let userUrls = {};
 
-  for (const shortURL in database) {
-    if (database[shortURL].userID === id) {
-      userUrls[shortURL] = database[shortURL];
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].userID === userID) {
+      userUrls[key] = urlDatabase[key];
     }
   }
 
@@ -34,7 +28,6 @@ const createUser = (id, database) => {
 const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
 
 module.exports = {
-  authenticateUser,
   fetchUserInfo,
   createUser,
   generateRandomStr,
