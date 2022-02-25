@@ -8,7 +8,7 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 
 app.listen(PORT, () => {
-  console.log(`TinyURL app listening on port ${PORT}!`);
+  console.log(`Tiny App listening on port ${PORT}!`);
 });
 
 /* Database */
