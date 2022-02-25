@@ -15,7 +15,6 @@
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
-    <% if (username) { %>
     <table class="table">
       <thead>
         <tr>
@@ -28,14 +27,18 @@
       <tbody>
       <% for(let url in urls) { %>
           <tr>
-            <td><%= url %></td>
+            <td>
+            <a href=' <%=urls[url].longURL%> ' target="_blank">
+              <%= url %>
+            </a>
+            </td>
             <td>
               <%= urls[url].longURL %>
             </td>
             <td>
-              <form method="POST" action="/urls/<%= url %>/edit">
+              <a href="/urls/<%= url %>">
               <button type="submit" class="btn btn-outline-dark">Edit</button>
-            </form>
+              </a>
             </td>
             <td>
               <form method="POST" action="/urls/<%= url %>/delete">
@@ -47,9 +50,6 @@
       </tbody>
     </table>
     <a class="btn btn-outline-dark" href="/urls/new">Create a New Short Link</a>
-    <% } else { %>
-      <h5 class="text-muted mt-3">You must login or register to see your URLs.</h5>
-      <% } %>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

@@ -1,39 +1,34 @@
-const authenticateUser = (userDB, email, password) => {
-  if (!userDB[email]) {
-    return { error: "bad email", data: null };
+/* fetch emails from user */
+const fetchUserInfo = (database, email) => {
+  let user = {};
+
+  for (let key in database) {
+    if (database[key]["email"] === email) {
+      user = database[key];
+      return user;
+    }
   }
 
-  if (userDB[email].password !== password) {
-    return { error: "bad password", data: null };
-  }
-
-  return { error: null, data: userDB[email] };
+  return null;
 };
 
-const fetchUserInfo = (userDB, email) => {
-  let userInfo = undefined;
-  if (userDB[email]) {
-    userInfo = userDB[email];
-  } else {
-    userInfo = {};
+/* user urls */
+const fetchUserUrl = (userID, urlDatabase) => {
+  let userUrls = {};
+
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].userID === userID) {
+      userUrls[key] = urlDatabase[key];
+    }
   }
+
+  return userUrls;
 };
 
-const createUser = (userDB, userInfo) => {
-  const { email, password } = userInfo;
+const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
 
-  if (!email || !password) {
-    return { error: "One of the fields is invalid", data: null };
-  }
-
-  if (userDB[email]) {
-    return { error: "account already exist", data: null };
-  }
-
-  const newUser = { email, password };
-  userDB[email] = newUser;
-  console.log(newUser);
-  return { error: null, data: newUser };
+module.exports = {
+  fetchUserInfo,
+  fetchUserUrl,
+  generateRandomStr,
 };
-
-module.exports = { authenticateUser, fetchUserInfo, createUser };
