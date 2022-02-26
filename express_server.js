@@ -6,8 +6,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /* database */
-const { users } = require("./data/userData");
-const { urlDatabase } = require("./data/urlData");
+const { users, urlDatabase } = require("./data/userDatabase");
 
 /* funcitons */
 const {
