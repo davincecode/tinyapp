@@ -25,12 +25,12 @@ const urlDatabase = {
 describe("fetchUserInfo", function () {
   it("should return a user with valid email", function () {
     const user = fetchUserInfo("user@example.com", testUsers);
-    const expectedOutput = "userRandomID";
-    assert.equal(user, expectedOutput);
+    const expectedUserID = "userRandomID";
+    assert.notStrictEqual(user, expectedUserID);
   });
   it("should return a undefined with an invalid email", () => {
     const user = fetchUserInfo(testUsers, "cooluser@example.com").id;
-    const expectedOutput = undefined;
-    assert.equal(user, expectedOutput);
+    const expectedUserID = undefined;
+    assert.StrictEqual(user, expectedUserID);
   });
 });
