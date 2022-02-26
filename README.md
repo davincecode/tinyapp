@@ -32,3 +32,5 @@ TinyApp is a full stack web application that allows users to shorten long URLs (
 - bcrypt
 - body-parser
 - cookie-session
+- Bootstrap css
+- Mocha and Chai
