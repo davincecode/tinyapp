@@ -73,7 +73,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-/* generated shortURL page for auth users */
+/* Generate shortURL page for auth users */
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -104,7 +104,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-/* redirect shortURL to longURL */
+/* Redirect shortURL to longURL */
 app.get("/u/:shortURL", (req, res) => {
   const urlRecord = urlDatabase[req.params.shortURL];
   if (!urlRecord) {
@@ -128,7 +128,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${genShortURL}`);
 });
 
-/* delete added shortURL for auth user */
+/* Delete added shortURL for auth user */
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.session.user_id;
   const { shortURL } = req.params;
@@ -141,7 +141,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect(`/urls`);
 });
 
-/* edit added shortURL */
+/* Edit added shortURL */
 app.post("/urls/:shortURL/edit", (req, res) => {
   const userID = req.session.user_id;
   let { longURL } = req.body;
@@ -159,7 +159,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls`);
 });
 
-/* register get */
+/* Register get */
 app.get("/register", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -173,7 +173,7 @@ app.get("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-/* register post */
+/* Register post */
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -215,20 +215,14 @@ app.get("/login", (req, res) => {
 
 /* login auth */
 app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  if (email === "" || password === "") {
+  const { email, password } = req.body;
+  if (!email || !password) {
     res.status(403).send("wrong credentials");
     return;
   }
 
   const user = fetchUserInfo(users, email);
-  if (!user) {
-    res.status(403).send("invalid credentials");
-    return;
-  }
-
-  if (!bcrypt.compareSync(password, user.password)) {
+  if (!user || !bcrypt.compareSync(password, user.password)) {
     res.status(403).send("invalid credentials");
     return;
   }
