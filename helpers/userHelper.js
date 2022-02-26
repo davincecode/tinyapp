@@ -28,7 +28,7 @@ const fetchUserUrl = (userID, urlDatabase) => {
 const generateRandomStr = () => (Math.random() + 1).toString(36).substring(7);
 
 module.exports = {
-  getUserByEmail,
+  fetchUserInfo,
   fetchUserUrl,
   generateRandomStr,
 };

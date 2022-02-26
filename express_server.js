@@ -16,7 +16,7 @@ const { users, urlDatabase } = require("./data/userDatabase");
 
 /* Functions */
 const {
-  getUserByEmail,
+  fetchUserInfo,
   fetchUserUrl,
   generateRandomStr,
 } = require("./helpers/userHelper");
