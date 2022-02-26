@@ -28,9 +28,8 @@ describe("fetchUserInfo", function () {
     const expectedUserID = "userRandomID";
     assert.notStrictEqual(user, expectedUserID);
   });
-  it("should return a undefined with an invalid email", () => {
-    const user = fetchUserInfo(testUsers, "cooluser@example.com").id;
-    const expectedUserID = undefined;
-    assert.StrictEqual(user, expectedUserID);
+  it("Should return undefined if providing an invalid email", () => {
+    const user = fetchUserInfo("nonexistant@gmail.com", testUsers);
+    assert.isUndefined(user);
   });
 });

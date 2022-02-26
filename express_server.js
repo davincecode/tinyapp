@@ -21,6 +21,10 @@ const {
   generateRandomStr,
 } = require("./helpers/userHelper");
 
+const encryptPassword = (id, password) => {
+  return bcrypt.compareSync(password, users[id].password) ? id : false;
+};
+
 /* Middleware */
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
@@ -240,19 +244,16 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(403).send("wrong credentials");
-    return;
+    return res
+      .status(400)
+      .send("You must provide an email and a password to login");
   }
-
-  const user = fetchUserInfo(users, email);
-  console.log("check", user, email, password);
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    res.status(403).send("invalid credentials");
-    return;
+  const userID = fetchUserInfo(email, users);
+  if (!userID || !encryptPassword(userID, password)) {
+    return res.status(403).send("Invalid email or password.");
   }
-
-  req.session.user_id = user.userID;
-  res.redirect(`/urls`);
+  req.session["user_id"] = userID;
+  res.redirect("/urls");
 });
 
 /* Logout */

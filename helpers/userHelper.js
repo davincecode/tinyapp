@@ -1,15 +1,10 @@
 /* Fetch user by email */
 const fetchUserInfo = (email, database) => {
-  let user = {};
-
-  for (let key in database) {
-    if (database[key].email === email) {
-      user = database[key];
-      return user;
+  for (const user in database) {
+    if (database[user].email === email) {
+      return database[user].userID;
     }
   }
-
-  return null;
 };
 
 /* Returns user's urls */
