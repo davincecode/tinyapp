@@ -1,5 +1,5 @@
 /* Fetch user by email */
-const getUserByEmail = (database, email) => {
+const fetchUserInfo = (database, email) => {
   let user = {};
 
   for (let key in database) {

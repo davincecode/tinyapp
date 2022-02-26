@@ -11,9 +11,8 @@ app.listen(PORT, () => {
   console.log(`Tiny App listening on port ${PORT}!`);
 });
 
-/* Database */
-const { users } = require("./data/userData");
-const { urlDatabase } = require("./data/urlData");
+/* database */
+const { users, urlDatabase } = require("./data/userDatabase");
 
 /* Functions */
 const {
@@ -26,12 +25,7 @@ const {
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
 app.use(cookieSession({ name: "session", secret: "secret-password-session" }));
-
-/* 
-
-GET ROUTES 
-
-*/
+app.set("view engine", "ejs");
 
 /* Homepage */
 app.get("/", (req, res) => {
@@ -202,44 +196,56 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls`);
 });
 
+/* Register get */
+app.get("/register", (req, res) => {
+  const userID = req.session.user_id;
+  if (!userID) {
+    const templateVars = {
+      user: null,
+    };
+    res.render("register", templateVars);
+    return;
+  }
+
+  res.redirect("/urls");
+});
+
 /* Register post */
 app.post("/register", (req, res) => {
-  const email = req.body.email;
-  const password = bcrypt.hashSync(req.body.password, 10);
-
-  if (email === "" || password === "") {
-    res.status(400).send("please check your email or password");
-    return;
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(400)
+      .send(
+        "You must provide an email and a password to register for an account."
+      );
   }
-
-  if (!getUserByEmail(users, email)) {
-    const userID = generateRandomStr();
-    req.session.user_id = userID;
-    users[userID] = { userID, email, password };
-    res.redirect(`/urls`);
-    return;
+  if (fetchUserInfo(email, users)) {
+    return res
+      .status(400)
+      .send("An account has already been created with this email address.");
   }
-
-  res.send("this email already exists!");
-  return;
+  const userID = `u_${generateRandomStr()}`;
+  const user = {
+    userID,
+    email,
+    password: bcrypt.hashSync(password, 10),
+  };
+  users[userID] = user;
+  req.session["user_id"] = userID;
+  res.redirect("/urls");
 });
 
 /* Login auth */
 app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  if (email === "" || password === "") {
+  const { email, password } = req.body;
+  if (!email || !password) {
     res.status(403).send("wrong credentials");
     return;
   }
 
-  const user = getUserByEmail(users, email);
-  if (!user) {
-    res.status(403).send("invalid credentials");
-    return;
-  }
-
-  if (!bcrypt.compareSync(password, user.password)) {
+  const user = fetchUserInfo(users, email);
+  if (!user || !bcrypt.compareSync(password, user.password)) {
     res.status(403).send("invalid credentials");
     return;
   }
