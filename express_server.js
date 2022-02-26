@@ -176,24 +176,28 @@ app.get("/register", (req, res) => {
 
 /* register post */
 app.post("/register", (req, res) => {
-  const email = req.body.email;
-  const password = bcrypt.hashSync(req.body.password, 10);
-
-  if (email === "" || password === "") {
-    res.status(400).send("please check your email or password");
-    return;
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(400)
+      .send(
+        "You must provide an email and a password to register for an account."
+      );
   }
-
-  if (!fetchUserInfo(users, email)) {
-    const userID = generateRandomStr();
-    req.session.user_id = userID;
-    users[userID] = { userID, email, password };
-    res.redirect(`/urls`);
-    return;
+  if (fetchUserInfo(email, users)) {
+    return res
+      .status(400)
+      .send("An account has already been created with this email address.");
   }
-
-  res.send("this email already exists!");
-  return;
+  const userID = `u_${generateRandomStr()}`;
+  const user = {
+    userID,
+    email,
+    password: bcrypt.hashSync(password, 10),
+  };
+  users[userID] = user;
+  req.session["user_id"] = userID;
+  res.redirect("/urls");
 });
 
 // /* login page */
