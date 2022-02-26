@@ -19,7 +19,6 @@ const {
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
 app.use(cookieSession({ name: "session", secret: "secret-password-session" }));
-
 app.set("view engine", "ejs");
 
 /* Routes */
