@@ -7,10 +7,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-app.listen(PORT, () => {
-  console.log(`Tiny App listening on port ${PORT}!`);
-});
-
 /* database */
 const { users, urlDatabase } = require("./data/userDatabase");
 
@@ -260,4 +256,8 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect(`/login`);
+});
+
+app.listen(PORT, () => {
+  console.log(`Tiny App listening on port ${PORT}!`);
 });
