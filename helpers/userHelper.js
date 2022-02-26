@@ -3,7 +3,7 @@ const fetchUserInfo = (database, email) => {
   let user = {};
 
   for (let key in database) {
-    if (database[key]["email"] === email) {
+    if (database[key].email === email) {
       user = database[key];
       return user;
     }
